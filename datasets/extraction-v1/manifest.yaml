@@ -1,0 +1,4 @@
+name: extraction-v1
+version: extraction-v1
+source: inline
+cases: cases.json

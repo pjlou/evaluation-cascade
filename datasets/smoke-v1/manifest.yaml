@@ -1,0 +1,9 @@
+name: smoke-v1
+version: smoke-v1
+source: cognitive
+case_ids:
+  - en-agr-001a
+  - en-agr-001b
+  - fi-case-001a
+  - fi-case-001c
+  - en-neg-001a

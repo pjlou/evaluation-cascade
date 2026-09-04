@@ -1,0 +1,82 @@
+[
+  {
+    "id": "ticket-0001",
+    "input": "I changed my password and now I cannot log in.",
+    "expected": {
+      "required_fields": {
+        "category": "account_access",
+        "priority": "high",
+        "requires_human_review": true,
+        "summary": "User cannot log in after a password change."
+      }
+    },
+    "tags": ["authentication", "high-risk", "account_access"],
+    "severity": "high",
+    "metadata": { "adapter": "extraction" },
+    "dataset_version": "extraction-v1"
+  },
+  {
+    "id": "ticket-0002",
+    "input": "Please refund last month's duplicate charge of $19.99.",
+    "expected": {
+      "required_fields": {
+        "category": "billing",
+        "priority": "medium",
+        "requires_human_review": false,
+        "summary": "Customer requests a refund for a duplicate charge."
+      }
+    },
+    "tags": ["billing"],
+    "severity": "medium",
+    "metadata": { "adapter": "extraction" },
+    "dataset_version": "extraction-v1"
+  },
+  {
+    "id": "ticket-0003",
+    "input": "The export button throws an error after I select CSV.",
+    "expected": {
+      "required_fields": {
+        "category": "bug",
+        "priority": "high",
+        "requires_human_review": true,
+        "summary": "CSV export fails with an error."
+      }
+    },
+    "tags": ["bug", "high-risk"],
+    "severity": "high",
+    "metadata": { "adapter": "extraction" },
+    "dataset_version": "extraction-v1"
+  },
+  {
+    "id": "ticket-0004",
+    "input": "How do I change the display language to Finnish?",
+    "expected": {
+      "required_fields": {
+        "category": "other",
+        "priority": "low",
+        "requires_human_review": false,
+        "summary": "User asks how to change display language."
+      }
+    },
+    "tags": ["other"],
+    "severity": "low",
+    "metadata": { "adapter": "extraction" },
+    "dataset_version": "extraction-v1"
+  },
+  {
+    "id": "ticket-0005",
+    "input": "I am locked out after enabling 2FA and support chat disconnected.",
+    "expected": {
+      "required_fields": {
+        "category": "account_access",
+        "priority": "high",
+        "requires_human_review": true,
+        "summary": "User locked out after enabling two-factor authentication."
+      }
+    },
+    "tags": ["authentication", "high-risk", "account_access"],
+    "severity": "high",
+    "metadata": { "adapter": "extraction" },
+    "dataset_version": "extraction-v1"
+  }
+]

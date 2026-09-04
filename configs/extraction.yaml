@@ -1,0 +1,35 @@
+application:
+  adapter: extraction-mock
+  model: qwen2.5:1.5b
+  timeout_seconds: 30
+  retries: 1
+  temperature: 0.0
+  application_version: "extraction-0.1.0"
+
+dataset: extraction-v1
+fail_on_gate: true
+
+evaluators:
+  - schema
+  - extraction_fields
+  - statistical
+  - review
+
+gates:
+  schema_validity:
+    minimum: 0.90
+  critical_field_accuracy:
+    minimum: 0.98
+  overall_accuracy:
+    minimum: 0.80
+  high_severity_failure_rate:
+    maximum: 0.20
+  application_error_rate:
+    maximum: 0.05
+  p95_latency_seconds:
+    maximum: 5.0
+  regression_tolerances:
+    overall_quality:
+      maximum_drop: 0.03
+    high_risk_slice:
+      maximum_drop: 0.01

@@ -1,0 +1,78 @@
+[
+  {
+    "id": "en-neg-001a",
+    "module": "english",
+    "tier": "tier_2_clausal",
+    "phenomenon": "negation_scope",
+    "language": "en",
+    "prompt": "Read the English sentence: 'Not all students failed the exam.' Does this mean: (a) No student passed, (b) At least one student passed, or (c) All students passed? Respond with only the letter, no explanation.",
+    "gold_structure": {
+      "negation_governor": "failed",
+      "scope_subtree": "all students ... failed",
+      "correct_choice": "b"
+    },
+    "rule_node_id": "RULE_EN_NEG_SCOPE",
+    "verification_method": "forced_choice_truth_conditional",
+    "difficulty": "hard",
+    "source": "ScoNe 2023",
+    "minimal_pair_of": "en-neg-001b",
+    "notes": "Tests external negation of universal quantifier."
+  },
+  {
+    "id": "en-neg-001b",
+    "module": "english",
+    "tier": "tier_2_clausal",
+    "phenomenon": "negation_scope",
+    "language": "en",
+    "prompt": "Read the English sentence: 'None of the students failed the exam.' Does this mean: (a) No student passed, (b) At least one student passed, or (c) All students passed? Respond with only the letter, no explanation.",
+    "gold_structure": {
+      "negation_governor": "failed",
+      "scope_subtree": "none of the students ... failed",
+      "correct_choice": "c"
+    },
+    "rule_node_id": "RULE_EN_NEG_UNIVERSAL_QUANT",
+    "verification_method": "forced_choice_truth_conditional",
+    "difficulty": "hard",
+    "source": "ScoNe 2023",
+    "minimal_pair_of": "en-neg-001a",
+    "notes": "Minimal pair for en-neg-001a: negates an existential ('none of') rather than a universal ('not all'), so the correct reading flips from 'at least one passed' to 'all passed'. Isolates whether the model distinguishes \u00ac\u2203 from \u00ac\u2200 rather than pattern-matching negation+quantifier surface forms to a single default reading."
+  },
+  {
+    "id": "en-neg-002a",
+    "module": "english",
+    "tier": "tier_2_clausal",
+    "phenomenon": "negation_scope",
+    "language": "en",
+    "prompt": "Read the English sentence: 'Not all of the buses were late.' Does this mean: (a) No bus was on time, (b) At least one bus was on time, or (c) All buses were on time? Respond with only the letter, no explanation.",
+    "gold_structure": {
+      "negation_governor": "late",
+      "scope_subtree": "all of the buses ... late",
+      "correct_choice": "b"
+    },
+    "rule_node_id": "RULE_EN_NEG_SCOPE",
+    "verification_method": "forced_choice_truth_conditional",
+    "difficulty": "hard",
+    "source": "ScoNe 2023",
+    "minimal_pair_of": "en-neg-002b",
+    "notes": "Second lexical instantiation of RULE_EN_NEG_SCOPE, using 'buses/late' instead of 'students/failed' so the category isn't validated on a single vocabulary item."
+  },
+  {
+    "id": "en-neg-002b",
+    "module": "english",
+    "tier": "tier_2_clausal",
+    "phenomenon": "negation_scope",
+    "language": "en",
+    "prompt": "Read the English sentence: 'None of the buses were late.' Does this mean: (a) No bus was on time, (b) At least one bus was on time, or (c) All buses were on time? Respond with only the letter, no explanation.",
+    "gold_structure": {
+      "negation_governor": "late",
+      "scope_subtree": "none of the buses ... late",
+      "correct_choice": "c"
+    },
+    "rule_node_id": "RULE_EN_NEG_UNIVERSAL_QUANT",
+    "verification_method": "forced_choice_truth_conditional",
+    "difficulty": "hard",
+    "source": "ScoNe 2023",
+    "minimal_pair_of": "en-neg-002a",
+    "notes": "Second lexical instantiation of RULE_EN_NEG_UNIVERSAL_QUANT, paired with en-neg-002a."
+  }
+]

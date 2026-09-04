@@ -1,0 +1,40 @@
+application:
+  adapter: mock
+  model: qwen2.5:1.5b
+  timeout_seconds: 30
+  retries: 1
+  temperature: 0.0
+  application_version: "0.1.0"
+
+dataset: smoke-v1
+fail_on_gate: true
+
+evaluators:
+  - schema
+  - rule_graph
+  - statistical
+  - review
+
+statistical:
+  enable_embeddings: false
+  length_relative_change: 0.25
+  latency_relative_change: 0.50
+  label_tv_distance: 0.20
+  review_rate_increase: 0.10
+
+gates:
+  schema_validity:
+    minimum: 0.99
+  overall_accuracy:
+    minimum: 0.80
+  high_severity_failure_rate:
+    maximum: 0.50
+  application_error_rate:
+    maximum: 0.02
+  p95_latency_seconds:
+    maximum: 5.0
+  regression_tolerances:
+    overall_quality:
+      maximum_drop: 0.03
+    high_risk_slice:
+      maximum_drop: 0.01

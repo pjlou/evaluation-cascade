@@ -1,0 +1,19 @@
+application:
+  adapter: ollama
+  model: qwen2.5:1.5b
+  timeout_seconds: 60
+  retries: 1
+  temperature: 0.0
+  application_version: "0.1.0"
+
+dataset: cognitive-v1
+fail_on_gate: false
+
+evaluators:
+  - schema
+  - rule_graph
+  - statistical
+  - review
+
+statistical:
+  enable_embeddings: false
