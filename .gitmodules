@@ -1,0 +1,3 @@
+[submodule "cognitive-eval"]
+	path = cognitive-eval
+	url = https://github.com/pjlou/cognitive-eval.git
