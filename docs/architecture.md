@@ -102,11 +102,11 @@ The platform data contracts are defined in [`models.py`](../evalcascade/models.p
 | `schema` | Per case | Validates JSON/object shape, required fields, allowed values, or extraction parse status. It is `not_applicable` when a case has no schema contract. |
 | `cognitive_rule_verifier` | Per case | For Cognitive-Eval cases, selects the natural or novel English forced-choice verifier from case metadata and audits the corresponding rule graph node. |
 | `extraction_fields` | Per case | Compares structured ticket fields to expected values, detects critical-field mismatches and hallucinated fields, and computes field accuracy. |
-| `llm_judge` | Per case | Model-based judgment against a fixed, disclosed rubric, scoped to cases that opt in via a `judge_rubric` and that no earlier deterministic evaluator already resolved. A judgment below the confidence floor is routed to `review` rather than trusted. |
+| `llm_judge` | Per case | Model-based judgment against a fixed, disclosed rubric, scoped to cases that opt in via a `judge_rubric` and that no earlier deterministic evaluator already resolved. CI uses `MockJudge`; local Ollama runs use `ollama_judge`. A judgment below the confidence floor is routed to `review` rather than trusted. |
 | `statistical` | Run | Compares candidate and baseline behavior for output length, latency, labels, review rate, error concentration, and optionally embedding clusters. |
-| `review_router` | Per case | Routes high-severity failures, evaluator errors, unsupported cases, disagreements, and near-threshold failures to human review. |
+| `review_router` | Per case | Routes high-severity failures, evaluator errors, unsupported cases, disagreements, near-threshold failures, and cases no evaluator could score (`no_evaluator_applicable`) to human review. |
 
-`llm_judge` ([`evaluators/llm_judge.py`](../evalcascade/evaluators/llm_judge.py)) is the platform's port of Cognitive-Eval's Cascade Stage 3. It only produces a `pass`/`fail`/`review`/`error` when a case carries `judge_rubric` metadata (or `expected.judge_rubric`) and no prior evaluator in the cascade already returned `pass` or `fail` for that case — otherwise it is `not_applicable`, so the cheapest resolving method always wins over a model judgment. An empty or whitespace-only model output short-circuits to `review` without invoking the judge. The default judge function lazily resolves Cognitive-Eval's Ollama-backed `ollama_judge` through [`vendor.py`](../evalcascade/vendor.py); a different `judge_fn` can be injected at construction for tests or alternate judge backends. Per FR-7, a judgment with `confidence` below `0.6` is routed to `review` rather than trusted outright, so `llm_judge` cannot be the sole release gate on its own.
+`llm_judge` ([`evaluators/llm_judge.py`](../evalcascade/evaluators/llm_judge.py)) is the platform's port of Cognitive-Eval's Cascade Stage 3. It only produces a `pass`/`fail`/`review`/`error` when a case carries `judge_rubric` metadata (or `expected.judge_rubric`) and no prior evaluator in the cascade already returned `pass` or `fail` for that case — otherwise it is `not_applicable`, so the cheapest resolving method always wins over a model judgment. An empty or whitespace-only model output short-circuits to `review` without invoking the judge. When the application adapter name contains `mock`, [`build_cascade`](../evalcascade/cascade.py) injects [`MockJudge`](../evalcascade/adapters/mock_judge.py) so CI scores rubric cases without Ollama. A live adapter leaves `judge_fn` unset, and the evaluator lazily resolves Cognitive-Eval's Ollama-backed `ollama_judge` through [`vendor.py`](../evalcascade/vendor.py). Per FR-7, a judgment with `confidence` below `0.6` is routed to `review` rather than trusted outright, so `llm_judge` cannot be the sole release gate on its own. If every evaluator returns `not_applicable`, the merge is `review` with reason `no_evaluator_applicable` — that used to be a silent pass.
 
 The deterministic per-case merge uses this precedence:
 
@@ -114,7 +114,7 @@ The deterministic per-case merge uses this precedence:
 fail > error > review > pass/not_applicable
 ```
 
-The deciding evaluator is the highest-ranked result. A review result can set `review_required`, but cannot clear a deterministic failure. Statistical results are calculated after all cases have been executed and are attached to each `CaseResult` for inspection; they can turn an otherwise passing run into a warning, but never turn a failure into a pass.
+The deciding evaluator is the highest-ranked result. If no result outranks `not_applicable`, the case is `review` (`no_evaluator_applicable`), not a pass. A review result can set `review_required`, but cannot clear a deterministic failure. Statistical results are calculated after all cases have been executed and are attached to each `CaseResult` for inspection; they can turn an otherwise passing run into a warning, but never turn a failure into a pass.
 
 ### 5. Run engine
 
@@ -204,7 +204,7 @@ python -m evalcascade.run --config configs/ci.yaml --dataset smoke-v1 --adapter 
 
 ### Portfolio demonstration
 
-[`scripts/portfolio_demo.py`](../scripts/portfolio_demo.py) creates a baseline, an improvement, and a deliberate regression in the same SQLite store. The regression demonstrates why aggregate schema validity alone is insufficient: a run can improve one metric while critical-field accuracy drops and the release gate fails.
+[`scripts/portfolio_demo.py`](../scripts/portfolio_demo.py) writes four runs to the same SQLite store: a baseline, an improvement, a deliberate regression, and a Stage 3 judge walk of smoke-v1. The regression demonstrates why aggregate schema validity alone is insufficient: a run can hold schema validity while critical-field accuracy drops and the release gate fails. The judge run shows inverse-scope justifications passing the mock judge and the hedged probe routed to review.
 
 ## Testing and extension points
 

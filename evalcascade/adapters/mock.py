@@ -43,13 +43,22 @@ class MockAdapter:
         elif self.default is not None:
             text = self.default
         else:
-            text = _gold_choice(case) or ""
+            text = _gold_choice(case) or _canned_justification(case) or ""
         return ApplicationOutput(
             status="success",
             output=text,
             raw_text=text,
             latency_seconds=self.latency_seconds,
         )
+
+
+def _canned_justification(case: EvaluationCase) -> str | None:
+    rubric = case.metadata.get("judge_rubric") or case.expected.get("judge_rubric")
+    if not rubric:
+        return None
+    return (
+        "The continuation forces the inverse reading: the same witness applies to everyone."
+    )
 
 
 def _gold_choice(case: EvaluationCase) -> str | None:

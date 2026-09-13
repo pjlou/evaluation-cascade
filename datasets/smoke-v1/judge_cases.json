@@ -38,5 +38,24 @@
       "rule_node_id": "RULE_EN_QSCOPE_INVERSE",
       "alternate_prompt": "In your own words, say whether the continuation requires a surface reading (every > some) or an inverse reading (some > every), and justify your answer. Sentence: 'Every frik brerped some swok. It was the same swok for every frik.'"
     }
+  },
+  {
+    "id": "en-comp-judge-low-001",
+    "input": "Explain whether this most naturally supports a surface reading (every > some) or an inverse reading (some > every), and justify your answer. Sentence: 'Every clerk filed some form. It might have been the same form.'",
+    "expected": {},
+    "tags": [
+      "english",
+      "quantifier_scope",
+      "llm-judge",
+      "low-confidence"
+    ],
+    "severity": "medium",
+    "metadata": {
+      "judge_rubric": "Score 1.0 if the response identifies the inverse-scope reading (some > every: one form for every clerk) as required by the continuation, and justifies that reading. Score 0.0 if it treats surface scope as required or gives no justification. Confidence should be low when the continuation is hedged ('might have been') and does not force one reading.",
+      "phenomenon": "quantifier_scope_judgment",
+      "lexical_condition": "natural",
+      "rule_node_id": "RULE_EN_QSCOPE_INVERSE",
+      "alternate_prompt": "In your own words, say whether the continuation requires a surface reading (every > some) or an inverse reading (some > every), and justify your answer. Sentence: 'Every clerk filed some form. It might have been the same form.'"
+    }
   }
 ]

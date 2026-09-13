@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "ruff"]
 embeddings = ["sentence-transformers"]
 
 [project.scripts]
@@ -27,6 +27,16 @@ evalcascade = "evalcascade.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["evalcascade*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F"]
+# E501 is line length; fixing it would be a style rewrite. E402 is the
+# sys.path bootstrap used by the dashboard and one-off scripts.
+ignore = ["E501", "E402"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -39,9 +39,9 @@ def test_planted_regression_fails_gates(tmp_path):
         adapter="mock",
     )
     report = run_evaluation(config, adapter=MockAdapter(responses=wrong))
-    # The two quantifier-scope justification items have no forced-choice gold
-    # and no llm_judge in configs/ci.yaml, so they trivially pass alongside
-    # the 5 deliberately-wrong forced-choice cases.
+    # Five forced-choice items fail on purpose. The inverse-scope judge pair
+    # passes via MockJudge. The low-confidence probe is review, and review is
+    # excluded from scored accuracy, so the rate is 2/7.
     assert report["metrics"]["overall_accuracy"] == pytest.approx(2 / 7)
     assert report["overall_status"] == "fail"
     assert report["metrics"]["high_severity_failure_rate"] == 1.0

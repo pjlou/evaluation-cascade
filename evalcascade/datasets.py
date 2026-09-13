@@ -7,7 +7,7 @@ import yaml
 
 from evalcascade.config import REPO_ROOT
 from evalcascade.models import EvaluationCase
-from evalcascade.vendor import VENDOR_ROOT, ensure_cognitive_eval_on_path
+from evalcascade.vendor import ensure_cognitive_eval_on_path
 
 DATASETS_DIR = REPO_ROOT / "datasets"
 DIFFICULTY_TO_SEVERITY = {"easy": "low", "medium": "medium", "hard": "high"}

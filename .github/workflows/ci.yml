@@ -6,6 +6,34 @@ on:
   pull_request:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Unit and integration tests
+        run: pytest
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Ruff
+        run: ruff check
+
   smoke:
     runs-on: ubuntu-latest
     steps:
@@ -15,10 +43,10 @@ jobs:
           python-version: "3.11"
       - name: Install
         run: pip install -e ".[dev]"
-      - name: Unit and integration tests
-        run: pytest
       - name: Smoke evaluation (mock adapter)
         run: python -m evalcascade.run --config configs/ci.yaml --dataset smoke-v1 --adapter mock --fail-on-gate --output eval_runs/smoke.json --store eval_runs/ci.sqlite
+      - name: Stage 3 judge (mock)
+        run: python scripts/assert_stage3_mock.py eval_runs/smoke.json
       - name: Planted regression must fail gates
         run: python -m pytest tests/test_cli.py::test_planted_regression_fails_gates -q
       - name: Upload artifacts

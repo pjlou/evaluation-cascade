@@ -43,6 +43,9 @@ class ReviewEvaluator:
         )
         if near_threshold:
             reasons.append("score near decision threshold")
+        resolved = {"pass", "fail", "error", "review"}
+        if previous and not any(item.status in resolved for item in previous):
+            reasons.append("no_evaluator_applicable")
         if not reasons:
             return EvaluationResult(
                 status="not_applicable",
@@ -51,10 +54,11 @@ class ReviewEvaluator:
                 evaluator_version=self.version,
                 latency_seconds=time.perf_counter() - started,
             )
+        coverage_gap = reasons == ["no_evaluator_applicable"]
         return EvaluationResult(
             status="review",
             score=None,
-            category="human_review",
+            category="no_evaluator_applicable" if coverage_gap else "human_review",
             severity=case.severity,
             evidence={"reasons": reasons},
             evaluator_name=self.name,

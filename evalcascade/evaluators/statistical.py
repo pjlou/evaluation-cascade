@@ -234,7 +234,6 @@ def compare_clusters(
     quality_c = cluster_quality(candidate_embeddings, cand_labels)
     quality_b = cluster_quality(baseline_embeddings, base_labels)
     cand_records = _as_cluster_records(candidate)
-    base_records = _as_cluster_records(baseline)
     cand_summary = [item.__dict__ for item in summarize_clusters(cand_records, candidate_embeddings, cand_labels, "kmeans")]
     fail_cand = [item for item in candidate if item.final_status == "fail"]
     fail_base = [item for item in baseline if item.final_status == "fail"]

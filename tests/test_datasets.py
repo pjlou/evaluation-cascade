@@ -12,6 +12,7 @@ def test_smoke_dataset_loads_five_cognitive_cases_plus_a_judge_case():
         "en-neg-001a",
         "en-comp-judge-001",
         "en-comp-judge-nov-001",
+        "en-comp-judge-low-001",
     ]
     cognitive_cases = [case for case in cases if not case.metadata.get("judge_rubric")]
     assert all(case.metadata["adapter"] == "cognitive" for case in cognitive_cases)

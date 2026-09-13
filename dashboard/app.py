@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from utils import DEFAULT_STORE, failed_cases, open_store, review_queue, runs_table, slice_accuracy
+from utils import DEFAULT_STORE, failed_cases, judge_rows, open_store, review_queue, runs_table, slice_accuracy
 from evalcascade.regression import compare_runs
 
 st.set_page_config(page_title="Evaluation Cascade", layout="wide")
@@ -117,6 +117,18 @@ if not slice_df.empty:
     st.dataframe(slice_df, width="stretch", hide_index=True)
 else:
     st.caption("No slice metrics stored for this run.")
+
+judge_items = judge_rows(candidate_cases)
+st.subheader("Judge results")
+if not judge_items:
+    st.caption("No Stage 3 judge results in this run.")
+else:
+    judged = len(judge_items)
+    reviewed = sum(row["status"] == "review" for row in judge_items)
+    with st.container(horizontal=True):
+        st.metric("Judged cases", judged, border=True)
+        st.metric("Judge review", reviewed, border=True)
+    st.dataframe(pd.DataFrame(judge_items), width="stretch", hide_index=True)
 
 review_items = review_queue(candidate_cases)
 st.subheader(f"Human-review queue ({len(review_items)})")

@@ -5,7 +5,7 @@ from pathlib import Path
 from evalcascade.adapters.consistency import ConsistencyAdapter
 from evalcascade.datasets import load_dataset
 from evalcascade.metrics import compute_metrics
-from evalcascade.models import ApplicationOutput, CaseResult, EvaluationCase, EvaluationResult
+from evalcascade.models import ApplicationOutput, CaseResult, EvaluationCase
 from evalcascade.vendor import ensure_cognitive_eval_on_path
 
 REPO = Path(__file__).resolve().parent.parent

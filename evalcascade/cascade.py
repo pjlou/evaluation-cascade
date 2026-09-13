@@ -60,6 +60,11 @@ def build_cascade(config: RunConfig) -> Cascade:
         factory = mapping.get(name)
         if factory is None:
             raise ValueError(f"Unknown evaluator: {name}")
+        if name == "llm_judge" and "mock" in config.adapter.name:
+            from evalcascade.adapters.mock_judge import MockJudge
+
+            evaluators.append(LlmJudgeEvaluator(judge_fn=MockJudge()))
+            continue
         evaluators.append(factory())
     return Cascade(evaluators)
 
@@ -73,7 +78,8 @@ def _merge(results: list[EvaluationResult]) -> tuple[EvalStatus, str | None, str
         if deciding is None or STATUS_RANK[result.status] >= STATUS_RANK[deciding.status]:
             deciding = result
     if deciding is None:
-        return "pass", None, None
+        # Every evaluator declined. That is missing coverage, not a pass.
+        return "review", None, "no_evaluator_applicable"
     reason = None
     if deciding.status == "fail":
         reason = deciding.category or "deterministic_failure"

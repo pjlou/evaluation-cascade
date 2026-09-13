@@ -1,5 +1,7 @@
 # Evaluation Cascade
 
+[![CI](https://github.com/pjlou/evaluation-cascade/actions/workflows/ci.yml/badge.svg)](https://github.com/pjlou/evaluation-cascade/actions/workflows/ci.yml)
+
 Reusable evaluation and regression platform for locally hosted LLM applications.
 
 The platform runs a versioned test suite against an application adapter, scores each case with a **cascade** of evaluators (schema → domain rules → statistical checks → review routing), stores full provenance in SQLite, compares a candidate to a baseline, and emits a release decision that CI can fail on.
@@ -39,14 +41,14 @@ python -m evalcascade.run --config configs/local.yaml --dataset cognitive-v1 --a
 python -m evalcascade.run --config configs/extraction.yaml --dataset extraction-v1 --adapter extraction-mock
 ```
 
-## Portfolio three-run demo
+## Portfolio four-run demo
 
 ```bash
 python scripts/portfolio_demo.py
 streamlit run dashboard/app.py
 ```
 
-Run A is a baseline, Run B an improvement, Run C a deliberate regression where schema validity rises while critical-field accuracy falls — and the release gate fails.
+Run A is a baseline, Run B an improvement, Run C a deliberate regression where schema validity holds while critical-field accuracy falls — and the release gate fails. Run D walks smoke-v1 through schema, the rule graph, a deterministic Stage 3 judge, and review: the inverse-scope justifications pass, and the hedged probe is routed to review because its confidence is below the floor.
 
 ## Tests
 

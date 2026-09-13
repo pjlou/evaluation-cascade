@@ -10,7 +10,7 @@ The system produces **reproducible evidence** that a change to a local LLM appli
 
 **Statistical (FR-6).** Length, latency, label-distribution, review-rate, and error-concentration shifts are numeric. Novel clusters and output drift reuse Cognitive-Eval embedding/clustering with a compare-to-baseline trigger. These emit `review` or warnings, never a silent override of a deterministic fail. Clustering quality is tested on synthetic embeddings so CI does not download `sentence-transformers`.
 
-**Model-assisted judging** is specified but not a release gate in this MVP.
+**Model-assisted judging** runs in CI against a deterministic stub and locally against the Ollama judge. A judgment below confidence 0.6 is routed to review, so the judge is evidence, not a sole release gate. An all-`not_applicable` case used to merge to pass; that coverage gap now routes to review with category `no_evaluator_applicable`.
 
 **Human review** is a routing signal (high-severity fail, evaluator disagreement, statistical anomaly), not an annotation product.
 

@@ -1,7 +1,7 @@
 from evalcascade.config import GateThresholds
 from evalcascade.gates import evaluate_gates
 from evalcascade.metrics import compute_metrics
-from evalcascade.models import CaseResult, ComparisonSummary, EvaluationResult
+from evalcascade.models import CaseResult, EvaluationResult
 from evalcascade.regression import compare_runs
 
 

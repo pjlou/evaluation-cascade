@@ -120,6 +120,23 @@ def test_build_cascade_recognizes_llm_judge():
     config = RunConfig(evaluators=["schema", "llm_judge", "review"])
     cascade = build_cascade(config)
     assert [item.name for item in cascade.evaluators] == ["schema", "llm_judge", "review_router"]
+    judge = cascade.evaluators[1]
+    assert judge._judge_fn is not None
+
+
+def test_mock_judge_routes_low_confidence_fixture_to_review():
+    from evalcascade.adapters.mock import MockAdapter
+
+    cases = load_dataset("smoke-v1")
+    probe = next(case for case in cases if case.id == "en-comp-judge-low-001")
+    config = RunConfig(evaluators=["schema", "rule_graph", "llm_judge", "review"], adapter={"name": "mock"})
+    cascade = build_cascade(config)
+    output = MockAdapter().run(probe, {})
+    outcome = cascade.evaluate(probe, output)
+    assert outcome.final_status == "review"
+    judge = next(item for item in outcome.evaluator_results if item.evaluator_name == "llm_judge")
+    assert judge.status == "review"
+    assert judge.evidence["confidence"] < 0.6
 
 
 def test_smoke_v1_judge_case_only_invokes_judge_for_the_unresolved_case():
@@ -127,7 +144,11 @@ def test_smoke_v1_judge_case_only_invokes_judge_for_the_unresolved_case():
     judge_cases = [case for case in cases if case.metadata.get("judge_rubric")]
     other_cases = [case for case in cases if case.id not in {item.id for item in judge_cases}]
     assert other_cases
-    assert {case.id for case in judge_cases} == {"en-comp-judge-001", "en-comp-judge-nov-001"}
+    assert {case.id for case in judge_cases} == {
+        "en-comp-judge-001",
+        "en-comp-judge-nov-001",
+        "en-comp-judge-low-001",
+    }
 
     calls: list[str] = []
 

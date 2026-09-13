@@ -6,7 +6,6 @@ from pathlib import Path
 from evalcascade.models import (
     AggregateMetric,
     CaseResult,
-    EvaluationResult,
     ReleaseDecision,
     RunMetadata,
 )

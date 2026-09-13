@@ -46,6 +46,38 @@ def test_schema_na_then_rule_pass():
     assert outcome.final_status == "pass"
 
 
+def test_all_not_applicable_is_review_not_pass():
+    from evalcascade.cascade import _merge
+
+    declined = EvaluationResult(
+        status="not_applicable",
+        evaluator_name="schema",
+        evaluator_version="1.0.0",
+    )
+    status, deciding, reason = _merge([declined, declined])
+    assert status == "review"
+    assert status != "pass"
+    assert deciding is None
+    assert reason == "no_evaluator_applicable"
+
+    cascade = Cascade([SchemaEvaluator(), ReviewEvaluator()])
+    case = EvaluationCase(
+        id="uncovered",
+        input="no contract and no rubric",
+        expected={},
+        dataset_version="smoke-v1",
+    )
+    outcome = cascade.evaluate(case, ApplicationOutput(status="success", raw_text="text", output="text"))
+    assert outcome.final_status == "review"
+    assert outcome.final_status != "pass"
+    assert outcome.escalation_reason == "no_evaluator_applicable"
+    assert outcome.review_required is True
+    assert any(
+        item.status == "review" and item.category == "no_evaluator_applicable"
+        for item in outcome.evaluator_results
+    )
+
+
 def test_statistical_review_cannot_clear_fail_status():
     fail = EvaluationResult(
         status="fail",

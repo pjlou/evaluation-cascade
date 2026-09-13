@@ -12,6 +12,7 @@ fail_on_gate: true
 evaluators:
   - schema
   - rule_graph
+  - llm_judge
   - statistical
   - review
 

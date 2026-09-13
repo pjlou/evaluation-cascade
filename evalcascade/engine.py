@@ -134,6 +134,7 @@ _ANNOTATION_KEYS = (
     "lexical_condition",
     "prompt_variant",
     "phenomenon",
+    "judge_rubric",
 )
 
 

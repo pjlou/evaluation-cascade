@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from evalcascade.config import REPO_ROOT
-from evalcascade.models import AggregateMetric, CaseResult, ReleaseDecision, RunMetadata
+from evalcascade.models import AggregateMetric, CaseResult
 from evalcascade.store import ResultStore
 
 DEFAULT_STORE = REPO_ROOT / "eval_runs" / "evalcascade.sqlite"
@@ -64,6 +64,35 @@ def slice_accuracy(metrics: list[AggregateMetric]) -> list[dict]:
         if chance is not None:
             row["random"] = chance
         rows.append(row)
+    return rows
+
+
+def judge_rows(cases: list[CaseResult]) -> list[dict]:
+    rows = []
+    for item in cases:
+        for result in item.evaluator_results:
+            if result.evaluator_name != "llm_judge" or result.status == "not_applicable":
+                continue
+            evidence = result.evidence or {}
+            confidence = evidence.get("confidence")
+            reason = None
+            if result.status == "review":
+                if result.category == "EMPTY_OR_MALFORMED_OUTPUT":
+                    reason = result.category
+                elif isinstance(confidence, (int, float)) and confidence < 0.6:
+                    reason = "confidence below floor"
+                else:
+                    reason = result.category
+            rows.append(
+                {
+                    "case_id": item.case_id,
+                    "rubric": (item.annotations or {}).get("judge_rubric") or evidence.get("rubric"),
+                    "score": result.score,
+                    "confidence": confidence,
+                    "status": result.status,
+                    "review_reason": reason,
+                }
+            )
     return rows
 
 
