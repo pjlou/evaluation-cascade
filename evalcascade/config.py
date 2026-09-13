@@ -17,6 +17,7 @@ class AdapterConfig(BaseModel):
     retries: int = 1
     temperature: float = 0.0
     application_version: str = "0.1.0"
+    consistency_repeats: int = 1
 
 
 class StatisticalConfig(BaseModel):
@@ -58,6 +59,7 @@ class RunConfig(BaseModel):
     statistical: StatisticalConfig = Field(default_factory=StatisticalConfig)
     output_json: Path | None = None
     seed: int | None = 0
+    prompt_variant: str = "canonical"
 
 
 def _parse_gates(raw: dict[str, Any]) -> GateThresholds:
@@ -125,6 +127,9 @@ def load_config(path: str | Path | None = None, **overrides: Any) -> RunConfig:
         retries=int(application.get("retries", 1)),
         temperature=float(application.get("temperature", 0.0)),
         application_version=str(application.get("application_version", "0.1.0")),
+        consistency_repeats=int(
+            _override(overrides, "consistency_repeats", application.get("consistency_repeats", 1))
+        ),
     )
     store = data.get("store_path") or str(REPO_ROOT / "eval_runs" / "evalcascade.sqlite")
     output = _override(overrides, "output_json", data.get("output_json"))
@@ -142,4 +147,7 @@ def load_config(path: str | Path | None = None, **overrides: Any) -> RunConfig:
         statistical=StatisticalConfig(**statistical_raw) if statistical_raw else StatisticalConfig(),
         output_json=Path(output) if output else None,
         seed=data.get("seed", 0),
+        prompt_variant=str(
+            _override(overrides, "prompt_variant", data.get("prompt_variant") or "canonical")
+        ),
     )

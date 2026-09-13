@@ -28,7 +28,7 @@ def run_evaluation(
     baseline_embeddings=None,
     embed_fn=None,
 ) -> dict[str, Any]:
-    cases = load_dataset(config.dataset)
+    cases = load_dataset(config.dataset, prompt_variant=config.prompt_variant)
     adapter = adapter or build_adapter(config, responses=responses)
     cascade = build_cascade(config)
     owned_store = store is None
@@ -68,6 +68,7 @@ def run_evaluation(
             review_required=outcome.review_required,
             tags=case.tags,
             input=case.input,
+            annotations=_annotations(case, output),
         )
         store.save_case(result)
         case_results.append(result)
@@ -86,7 +87,7 @@ def run_evaluation(
         )
         _apply_statistical_signals(case_results, statistical_results)
 
-    metrics = compute_metrics(metadata.run_id, case_results)
+    metrics = compute_metrics(metadata.run_id, case_results, seed=config.seed or 0)
     store.save_metrics(metrics)
     comparison = None
     if baseline_id and baseline_cases:
@@ -124,6 +125,29 @@ def run_evaluation(
     if owned_store:
         store.close()
     return report
+
+
+_ANNOTATION_KEYS = (
+    "correct_choice",
+    "n_options",
+    "lexical_pair_of",
+    "lexical_condition",
+    "prompt_variant",
+    "phenomenon",
+)
+
+
+def _annotations(case, output) -> dict:
+    notes = {
+        key: case.metadata[key]
+        for key in _ANNOTATION_KEYS
+        if case.metadata.get(key) is not None
+    }
+    if "correct_choice" not in notes and case.expected.get("correct_choice"):
+        notes["correct_choice"] = case.expected["correct_choice"]
+    if output.diagnostics:
+        notes["consistency"] = output.diagnostics
+    return notes
 
 
 def _apply_statistical_signals(

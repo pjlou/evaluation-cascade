@@ -66,5 +66,6 @@ pytest
 ## Design notes
 
 - Deterministic failures are never overridden by statistical checks or review routing.
+- Cognitive-Eval accuracy is reported against majority-class and random baselines, with a bootstrap interval and a McNemar test on matched natural/novel pairs.
 - FR-6 (novel clusters, output drift) reuses Cognitive-Eval's `embed_texts` / `cluster_embeddings` / `cluster_quality` / `summarize_clusters` with a compare-to-baseline trigger.
 - Inspect AI remains available inside Cognitive-Eval; Evaluation Cascade's source of truth is SQLite.

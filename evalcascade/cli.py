@@ -23,6 +23,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", help="Write JSON report to this path")
     parser.add_argument("--store", help="SQLite path")
     parser.add_argument("--json", action="store_true", help="Print JSON instead of a text summary")
+    parser.add_argument(
+        "--prompt-variant",
+        choices=["canonical", "alternate", "both"],
+        help="Use the canonical forced-choice phrasing, the alternate phrasing, or both",
+    )
+    parser.add_argument(
+        "--consistency-repeats",
+        type=int,
+        help="Resample each item this many times and majority-vote (use n>1 with temperature>0)",
+    )
     return parser
 
 
@@ -37,6 +47,8 @@ def main(argv: list[str] | None = None) -> int:
         fail_on_gate=args.fail_on_gate or None,
         output_json=args.output,
         store_path=args.store,
+        prompt_variant=args.prompt_variant,
+        consistency_repeats=args.consistency_repeats,
     )
     if args.fail_on_gate:
         config.fail_on_gate = True

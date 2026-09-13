@@ -31,7 +31,7 @@ if not runs:
 
 runs_df = pd.DataFrame(runs)
 st.subheader("Run history")
-st.dataframe(runs_df, use_container_width=True, hide_index=True)
+st.dataframe(runs_df, width="stretch", hide_index=True)
 
 run_ids = [row["run_id"] for row in runs]
 candidate_id = st.sidebar.selectbox("Candidate run", options=run_ids, index=0)
@@ -52,14 +52,48 @@ status = (decision.status if decision else candidate_meta.overall_status) or "un
 st.subheader("Release decision")
 c1, c2, c3, c4 = st.columns(4)
 overall = {item.metric_name: item.value for item in candidate_metrics if item.slice_name is None}
-c1.metric("Gate status", status.upper())
-c2.metric("Accuracy", f"{overall.get('overall_accuracy', 0):.1%}")
-c3.metric("Schema validity", f"{overall.get('schema_validity', 0):.1%}")
-c4.metric("p95 latency", f"{overall.get('p95_latency_seconds', 0):.2f}s")
+accuracy = overall.get("overall_accuracy", 0)
+if "overall_accuracy_ci_low" in overall and "overall_accuracy_ci_high" in overall:
+    accuracy_label = (
+        f"{accuracy:.1%} [{overall['overall_accuracy_ci_low']:.1%}, {overall['overall_accuracy_ci_high']:.1%}]"
+    )
+else:
+    accuracy_label = f"{accuracy:.1%}"
+c1.metric("Gate status", status.upper(), border=True)
+c2.metric("Accuracy (95% CI)", accuracy_label, border=True)
+c3.metric("Schema validity", f"{overall.get('schema_validity', 0):.1%}", border=True)
+c4.metric("p95 latency", f"{overall.get('p95_latency_seconds', 0):.2f}s", border=True)
+if "majority_class_baseline" in overall or "random_baseline" in overall:
+    with st.container(horizontal=True):
+        if "majority_class_baseline" in overall:
+            st.metric("Majority-class baseline", f"{overall['majority_class_baseline']:.1%}", border=True)
+        if "random_baseline" in overall:
+            st.metric("Random baseline", f"{overall['random_baseline']:.1%}", border=True)
+        if "natural_novel_mcnemar_p" in overall:
+            st.metric(
+                "Natural vs novel McNemar p",
+                f"{overall['natural_novel_mcnemar_p']:.3f}",
+                help="Exact test on matched natural/novel pairs. A small p means the gap is not just an eyeball difference.",
+                border=True,
+            )
+        if "prompt_phrasing_gap" in overall:
+            st.metric(
+                "Prompt-phrasing gap",
+                f"{overall['prompt_phrasing_gap']:.3f}",
+                help="Absolute accuracy difference between canonical and alternate prompts. A large swing is a finding, not a gate failure.",
+                border=True,
+            )
+        if "consistency_mean_agreement" in overall:
+            st.metric(
+                "Repeat agreement",
+                f"{overall['consistency_mean_agreement']:.1%}",
+                help="Mean majority-vote agreement across repeated samples.",
+                border=True,
+            )
 
 if decision:
     gate_df = pd.DataFrame([item.model_dump() for item in decision.results])
-    st.dataframe(gate_df, use_container_width=True, hide_index=True)
+    st.dataframe(gate_df, width="stretch", hide_index=True)
 
 comparison = None
 if baseline_id and baseline_cases:
@@ -79,7 +113,8 @@ if baseline_id and baseline_cases:
 st.subheader("Slice accuracy")
 slice_df = pd.DataFrame(slice_accuracy(candidate_metrics))
 if not slice_df.empty:
-    st.bar_chart(slice_df.set_index("slice"))
+    st.bar_chart(slice_df, x="slice", y="accuracy")
+    st.dataframe(slice_df, width="stretch", hide_index=True)
 else:
     st.caption("No slice metrics stored for this run.")
 
@@ -99,7 +134,7 @@ if review_items:
                 for item in review_items
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 else:
@@ -145,7 +180,7 @@ for row in stat_rows:
     seen.add(key)
     unique_stats.append(row)
 if unique_stats:
-    st.dataframe(pd.DataFrame(unique_stats)[["status", "category", "score"]], use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(unique_stats)[["status", "category", "score"]], width="stretch", hide_index=True)
     with st.expander("Statistical evidence"):
         st.json(unique_stats)
 else:

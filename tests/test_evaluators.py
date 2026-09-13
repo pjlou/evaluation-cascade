@@ -99,6 +99,12 @@ def test_rule_graph_covers_each_rule_node_used_in_dataset():
     evaluator = RuleGraphEvaluator()
     seen = set()
     for case in load_dataset("cognitive-v1"):
+        if case.metadata.get("judge_rubric"):
+            skipped = evaluator.evaluate(
+                case, ApplicationOutput(status="success", raw_text="justification", output="justification"), []
+            )
+            assert skipped.status == "not_applicable", case.id
+            continue
         gold = case.metadata["gold_structure"]["correct_choice"]
         result = evaluator.evaluate(
             case, ApplicationOutput(status="success", raw_text=gold, output=gold), []
@@ -115,6 +121,11 @@ def test_rule_graph_covers_each_rule_node_used_in_dataset():
         "RULE_EN_AGR_HEAD",
         "RULE_EN_NEG_SCOPE",
         "RULE_EN_NEG_UNIVERSAL_QUANT",
+        "RULE_EN_NPI_LICENSE",
+        "RULE_EN_SCALAR_SOME",
+        "RULE_EN_SCALAR_UNIVERSAL",
+        "RULE_EN_QSCOPE_SURFACE",
+        "RULE_EN_QSCOPE_INVERSE",
     }
 
 

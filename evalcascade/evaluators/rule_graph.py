@@ -21,6 +21,9 @@ class RuleGraphEvaluator:
         from src.verifiers.english_verifiers import (
             verify_english_agreement_attraction,
             verify_english_negation_scope,
+            verify_english_npi_licensing,
+            verify_english_quantifier_scope,
+            verify_english_scalar_implicature,
         )
 
         self._graph = build_v02_rule_graph()
@@ -30,6 +33,12 @@ class RuleGraphEvaluator:
             ("agreement_attraction", "novel"): verify_english_agreement_attraction,
             ("negation_scope", "natural"): verify_english_negation_scope,
             ("negation_scope", "novel"): verify_english_negation_scope,
+            ("npi_licensing", "natural"): verify_english_npi_licensing,
+            ("npi_licensing", "novel"): verify_english_npi_licensing,
+            ("scalar_implicature", "natural"): verify_english_scalar_implicature,
+            ("scalar_implicature", "novel"): verify_english_scalar_implicature,
+            ("quantifier_scope", "natural"): verify_english_quantifier_scope,
+            ("quantifier_scope", "novel"): verify_english_quantifier_scope,
         }
 
     def evaluate(
@@ -64,6 +73,15 @@ class RuleGraphEvaluator:
         gold = case.metadata.get("gold_structure") or case.expected.get("gold_structure") or {}
         rule_node_id = case.metadata.get("rule_node_id") or case.expected.get("rule_node_id")
         verifier = self._verifiers.get((phenomenon, lexical_condition))
+        rubric = case.metadata.get("judge_rubric") or case.expected.get("judge_rubric")
+        if verifier is None and rubric:
+            return EvaluationResult(
+                status="not_applicable",
+                evidence={"reason": "no deterministic verifier; reserved for llm_judge"},
+                evaluator_name=self.name,
+                evaluator_version=self.version,
+                latency_seconds=time.perf_counter() - started,
+            )
         if verifier is None:
             return EvaluationResult(
                 status="error",

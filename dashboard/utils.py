@@ -42,14 +42,29 @@ def runs_table(store: ResultStore) -> list[dict]:
 
 
 def slice_accuracy(metrics: list[AggregateMetric]) -> list[dict]:
-    return [
-        {
-            "slice": f"{item.slice_name}={item.slice_value}",
-            "accuracy": item.value,
-        }
+    extras = {
+        (item.slice_name, item.slice_value, item.metric_name): item.value
         for item in metrics
-        if item.slice_name is not None and item.metric_name == "overall_accuracy"
-    ]
+        if item.slice_name is not None
+    }
+    rows = []
+    for item in metrics:
+        if item.slice_name is None or item.metric_name != "overall_accuracy":
+            continue
+        key = (item.slice_name, item.slice_value)
+        row = {"slice": f"{item.slice_name}={item.slice_value}", "accuracy": item.value}
+        low = extras.get((*key, "overall_accuracy_ci_low"))
+        high = extras.get((*key, "overall_accuracy_ci_high"))
+        if low is not None and high is not None:
+            row["ci"] = f"[{low:.1%}, {high:.1%}]"
+        majority = extras.get((*key, "majority_class_baseline"))
+        chance = extras.get((*key, "random_baseline"))
+        if majority is not None:
+            row["majority"] = majority
+        if chance is not None:
+            row["random"] = chance
+        rows.append(row)
+    return rows
 
 
 def review_queue(cases: list[CaseResult]) -> list[CaseResult]:

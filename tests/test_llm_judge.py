@@ -124,15 +124,16 @@ def test_build_cascade_recognizes_llm_judge():
 
 def test_smoke_v1_judge_case_only_invokes_judge_for_the_unresolved_case():
     cases = load_dataset("smoke-v1")
-    judge_case = next(case for case in cases if case.id == "en-comp-judge-001")
-    other_cases = [case for case in cases if case.id != judge_case.id]
-    assert other_cases  # sanity: the deterministic cognitive cases are still there
+    judge_cases = [case for case in cases if case.metadata.get("judge_rubric")]
+    other_cases = [case for case in cases if case.id not in {item.id for item in judge_cases}]
+    assert other_cases
+    assert {case.id for case in judge_cases} == {"en-comp-judge-001", "en-comp-judge-nov-001"}
 
     calls: list[str] = []
 
     def stub(item, model_output, rubric):
         calls.append(item["id"])
-        return {"parsed_score": 1.0, "confidence": 0.95, "rationale": "narrow scope explained correctly"}
+        return {"parsed_score": 1.0, "confidence": 0.95, "rationale": "inverse scope, one shared book"}
 
     cascade = Cascade([SchemaEvaluator(), RuleGraphEvaluator(), LlmJudgeEvaluator(judge_fn=stub)])
 
@@ -141,15 +142,16 @@ def test_smoke_v1_judge_case_only_invokes_judge_for_the_unresolved_case():
         outcome = cascade.evaluate(case, ApplicationOutput(status="success", raw_text=gold, output=gold))
         assert outcome.final_status == "pass", case.id
 
-    outcome = cascade.evaluate(
-        judge_case,
-        ApplicationOutput(
-            status="success",
-            raw_text="Under the narrow-scope reading, every > not, so some students didn't finish.",
-            output="Under the narrow-scope reading, every > not, so some students didn't finish.",
-        ),
-    )
-    assert outcome.final_status == "pass"
-    assert outcome.deciding_evaluator == "llm_judge"
+    for case in judge_cases:
+        outcome = cascade.evaluate(
+            case,
+            ApplicationOutput(
+                status="success",
+                raw_text="The continuation forces inverse scope: one shared witness.",
+                output="The continuation forces inverse scope: one shared witness.",
+            ),
+        )
+        assert outcome.final_status == "pass", case.id
+        assert outcome.deciding_evaluator == "llm_judge"
 
-    assert calls == [judge_case.id]  # the judge was only ever invoked for the case it applies to
+    assert calls == [case.id for case in judge_cases]

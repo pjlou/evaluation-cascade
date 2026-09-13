@@ -135,7 +135,7 @@ The engine owns orchestration, not domain scoring. This keeps the same lifecycle
 
 ## Metrics, regression, and gates
 
-[`metrics.py`](../evalcascade/metrics.py) computes metrics for the full suite and for slices grouped by severity and case tags. Current metrics include overall accuracy, fail rate, schema validity, application error and timeout rates, review routing, high-severity failure rate, mean/p50/p95 latency, extraction field accuracy, critical-field accuracy, and task completion.
+[`metrics.py`](../evalcascade/metrics.py) computes metrics for the full suite and for slices grouped by severity and case tags. Current metrics include overall accuracy, a bootstrap 95% CI over items, majority-class and random chance baselines when gold letters are available, an exact McNemar test on natural/novel pairs, fail rate, schema validity, application error and timeout rates, review routing, high-severity failure rate, mean/p50/p95 latency, extraction field accuracy, critical-field accuracy, and task completion. Alternate prompt copies are kept out of the headline accuracy and reported as a phrasing gap. Optional repeat sampling adds mean agreement and entropy.
 
 [`regression.py`](../evalcascade/regression.py) compares cases by shared case id and metrics by name. It reports:
 
@@ -196,7 +196,7 @@ python -m evalcascade.run --config configs/ci.yaml --dataset smoke-v1 --adapter 
 
 ### Local Cognitive-Eval run
 
-`configs/local.yaml` selects Ollama and `cognitive-v1`. The adapter returns raw model text; the rule-graph evaluator applies the language-specific verifier selected by each case's metadata; optional baseline and embedding checks add run-level evidence.
+`configs/local.yaml` selects Ollama, `cognitive-v1`, and `llm_judge` so quantifier-scope justification items reach Stage 3. The adapter returns raw model text; the rule-graph evaluator applies the language-specific verifier selected by each case's metadata, and returns not-applicable when the case carries a judge rubric instead. Optional baseline and embedding checks add run-level evidence. Set `consistency_repeats` above 1 with a nonzero temperature to majority-vote repeated samples.
 
 ### Structured extraction run
 

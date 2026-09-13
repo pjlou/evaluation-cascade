@@ -35,6 +35,7 @@ class ApplicationOutput(BaseModel):
     latency_seconds: float | None = None
     retries: int = 0
     token_usage: dict[str, Any] | None = None
+    diagnostics: dict[str, Any] | None = None
 
 
 class EvaluationResult(BaseModel):
@@ -81,6 +82,7 @@ class CaseResult(BaseModel):
     review_required: bool = False
     tags: list[str] = Field(default_factory=list)
     input: str | None = None
+    annotations: dict[str, Any] = Field(default_factory=dict)
 
 
 class AggregateMetric(BaseModel):

@@ -1,12 +1,42 @@
 [
   {
     "id": "en-comp-judge-001",
-    "input": "Sentence: 'Every student didn't finish the exam.' Explain whether this most naturally supports a wide-scope negation reading (not > every: no student finished) or a narrow-scope reading (every > not: some students didn't finish), and justify your answer.",
+    "input": "Explain whether this most naturally supports a surface reading (every > some) or an inverse reading (some > every), and justify your answer. Sentence: 'Every student read some book. It was the same book for everyone.'",
     "expected": {},
-    "tags": ["english", "compositional_logic", "llm-judge"],
+    "tags": [
+      "english",
+      "quantifier_scope",
+      "llm-judge",
+      "natural"
+    ],
     "severity": "medium",
     "metadata": {
-      "judge_rubric": "Score 1.0 if the response correctly identifies the narrow-scope reading (every > not: some students didn't finish) as the most natural interpretation and gives a coherent justification. Score 0.0 if it claims the wide-scope reading is more natural or gives no coherent justification. Confidence should reflect how unambiguous the explanation is."
+      "judge_rubric": "Score 1.0 if the response identifies the inverse-scope reading (some > every: there is one book that every student read) as required by the continuation, and justifies that reading from 'the same book for everyone'. Score 0.0 if it treats surface scope (every > some: different books allowed) as required, or gives no coherent justification. Confidence should reflect how unambiguous the explanation is.",
+      "phenomenon": "quantifier_scope_judgment",
+      "lexical_condition": "natural",
+      "lexical_pair_of": "en-comp-judge-nov-001",
+      "rule_node_id": "RULE_EN_QSCOPE_INVERSE",
+      "alternate_prompt": "In your own words, say whether the continuation requires a surface reading (every > some) or an inverse reading (some > every), and justify your answer. Sentence: 'Every student read some book. It was the same book for everyone.'"
+    }
+  },
+  {
+    "id": "en-comp-judge-nov-001",
+    "input": "Explain whether this most naturally supports a surface reading (every > some) or an inverse reading (some > every), and justify your answer. Sentence: 'Every frik brerped some swok. It was the same swok for every frik.'",
+    "expected": {},
+    "tags": [
+      "english",
+      "quantifier_scope",
+      "llm-judge",
+      "novel"
+    ],
+    "severity": "medium",
+    "metadata": {
+      "judge_rubric": "Score 1.0 if the response identifies the inverse-scope reading (some > every: there is one swok that every frik brerped) as required by the continuation, and justifies that reading from 'the same swok for every frik'. Score 0.0 if it treats surface scope (every > some: different swoks allowed) as required, or gives no coherent justification. Confidence should reflect how unambiguous the explanation is. Invented nouns do not change the scope rule.",
+      "phenomenon": "quantifier_scope_judgment",
+      "lexical_condition": "novel",
+      "lexical_pair_of": "en-comp-judge-001",
+      "rule_node_id": "RULE_EN_QSCOPE_INVERSE",
+      "alternate_prompt": "In your own words, say whether the continuation requires a surface reading (every > some) or an inverse reading (some > every), and justify your answer. Sentence: 'Every frik brerped some swok. It was the same swok for every frik.'"
     }
   }
 ]

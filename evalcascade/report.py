@@ -63,14 +63,38 @@ def build_report(
 
 def render_terminal(report: dict[str, Any]) -> str:
     metrics = report.get("metrics") or {}
+    accuracy = f"Accuracy: {metrics.get('overall_accuracy', 0):.3f}"
+    if "overall_accuracy_ci_low" in metrics and "overall_accuracy_ci_high" in metrics:
+        accuracy += (
+            f" [{metrics['overall_accuracy_ci_low']:.3f}, {metrics['overall_accuracy_ci_high']:.3f}]"
+        )
+    if "majority_class_baseline" in metrics:
+        accuracy += f"  majority={metrics['majority_class_baseline']:.3f}"
+    if "random_baseline" in metrics:
+        accuracy += f"  random={metrics['random_baseline']:.3f}"
     lines = [
         f"Run {report['run']['run_id']}  dataset={report['run']['dataset_version']}",
         f"Release status: {report['overall_status'].upper()}",
-        f"Accuracy: {metrics.get('overall_accuracy', 0):.3f}  "
-        f"Schema: {metrics.get('schema_validity', 0):.3f}  "
-        f"Errors: {metrics.get('application_error_rate', 0):.3f}  "
-        f"p95: {metrics.get('p95_latency_seconds', 0):.3f}s",
+        accuracy
+        + f"  Schema: {metrics.get('schema_validity', 0):.3f}  "
+        + f"Errors: {metrics.get('application_error_rate', 0):.3f}  "
+        + f"p95: {metrics.get('p95_latency_seconds', 0):.3f}s",
     ]
+    if "natural_novel_mcnemar_p" in metrics:
+        lines.append(
+            "Natural vs novel McNemar: "
+            f"p={metrics['natural_novel_mcnemar_p']:.4f}  "
+            f"pairs={metrics.get('natural_novel_n_pairs', 0):.0f}  "
+            f"gap={metrics.get('natural_novel_accuracy_gap', 0):.3f}"
+        )
+    if "prompt_phrasing_gap" in metrics:
+        lines.append(f"Prompt-phrasing gap: {metrics['prompt_phrasing_gap']:.3f}")
+    if "consistency_mean_agreement" in metrics:
+        lines.append(
+            "Consistency: "
+            f"agreement={metrics['consistency_mean_agreement']:.3f}  "
+            f"entropy={metrics.get('consistency_mean_entropy', 0):.3f}"
+        )
     if report.get("critical_failures"):
         lines.append("Critical gates: " + ", ".join(report["critical_failures"]))
     comparison = report.get("comparison")

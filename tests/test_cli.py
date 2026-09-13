@@ -39,10 +39,10 @@ def test_planted_regression_fails_gates(tmp_path):
         adapter="mock",
     )
     report = run_evaluation(config, adapter=MockAdapter(responses=wrong))
-    # en-comp-judge-001 has no forced-choice gold answer and no llm_judge in
-    # configs/ci.yaml's evaluators, so it trivially passes alongside the 5
-    # deliberately-wrong forced-choice cases.
-    assert report["metrics"]["overall_accuracy"] == pytest.approx(1 / 6)
+    # The two quantifier-scope justification items have no forced-choice gold
+    # and no llm_judge in configs/ci.yaml, so they trivially pass alongside
+    # the 5 deliberately-wrong forced-choice cases.
+    assert report["metrics"]["overall_accuracy"] == pytest.approx(2 / 7)
     assert report["overall_status"] == "fail"
     assert report["metrics"]["high_severity_failure_rate"] == 1.0
 

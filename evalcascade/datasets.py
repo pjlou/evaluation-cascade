@@ -13,7 +13,7 @@ DATASETS_DIR = REPO_ROOT / "datasets"
 DIFFICULTY_TO_SEVERITY = {"easy": "low", "medium": "medium", "hard": "high"}
 
 
-def load_dataset(name: str) -> list[EvaluationCase]:
+def load_dataset(name: str, *, prompt_variant: str = "canonical") -> list[EvaluationCase]:
     manifest_path = DATASETS_DIR / name / "manifest.yaml"
     cases_path_json = DATASETS_DIR / name / "cases.json"
     if manifest_path.exists():
@@ -22,7 +22,9 @@ def load_dataset(name: str) -> list[EvaluationCase]:
         version = str(manifest.get("version", name))
         if source == "cognitive":
             case_ids = manifest.get("case_ids", "all")
-            cases = load_cognitive_cases(version=version, case_ids=case_ids)
+            cases = load_cognitive_cases(
+                version=version, case_ids=case_ids, prompt_variant=prompt_variant
+            )
             extra = manifest.get("extra_cases")
             if extra:
                 cases.extend(_load_case_file(DATASETS_DIR / name / extra, version))
@@ -39,12 +41,17 @@ def load_dataset(name: str) -> list[EvaluationCase]:
 def load_cognitive_cases(
     version: str = "cognitive-v1",
     case_ids: list[str] | str = "all",
+    prompt_variant: str = "canonical",
 ) -> list[EvaluationCase]:
     ensure_cognitive_eval_on_path()
     from src.schema.dataset_loader import load_all_test_items
+    from src.schema.prompt_variants import expand_prompt_variants
 
-    items = load_all_test_items()
+    items = expand_prompt_variants(load_all_test_items(), prompt_variant)
     wanted = None if case_ids == "all" else set(case_ids)
+    if wanted is not None and prompt_variant in {"alternate", "both"}:
+        alts = {f"{case_id}-alt" for case_id in wanted}
+        wanted = alts if prompt_variant == "alternate" else wanted | alts
     cases: list[EvaluationCase] = []
     for item in items:
         if wanted is not None and item.id not in wanted:
@@ -56,7 +63,7 @@ def load_cognitive_cases(
         if missing:
             raise KeyError(f"Cognitive-Eval case ids not found: {sorted(missing)}")
         order = {case_id: index for index, case_id in enumerate(case_ids)}  # type: ignore[arg-type]
-        cases.sort(key=lambda case: order[case.id])
+        cases.sort(key=lambda case: (order.get(case.id.removesuffix("-alt"), 10**6), case.id))
     return cases
 
 
@@ -72,6 +79,10 @@ def test_item_to_case(item: Any, dataset_version: str) -> EvaluationCase:
     ]
     if severity == "high":
         tags.append("high-risk")
+    prompt_variant = "alternate" if str(item.id).endswith("-alt") else "canonical"
+    if prompt_variant == "alternate":
+        tags.append("alternate-prompt")
+    gold = item.gold_structure or {}
     return EvaluationCase(
         id=item.id,
         input=item.prompt,
@@ -94,6 +105,12 @@ def test_item_to_case(item: Any, dataset_version: str) -> EvaluationCase:
             "minimal_pair_of": item.minimal_pair_of,
             "notes": item.notes,
             "gold_structure": item.gold_structure,
+            "lexical_pair_of": item.lexical_pair_of,
+            "alternate_prompt": item.alternate_prompt,
+            "judge_rubric": item.judge_rubric,
+            "prompt_variant": prompt_variant,
+            "correct_choice": gold.get("correct_choice"),
+            "n_options": gold.get("n_options"),
         },
         dataset_version=dataset_version,
     )

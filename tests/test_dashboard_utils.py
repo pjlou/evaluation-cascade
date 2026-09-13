@@ -36,3 +36,31 @@ def test_slice_accuracy_rows():
     ]
     rows = slice_accuracy(metrics)
     assert rows == [{"slice": "severity=high", "accuracy": 0.5}]
+    metrics.extend(
+        [
+            AggregateMetric(
+                run_id="r",
+                metric_name="overall_accuracy_ci_low",
+                value=0.1,
+                slice_name="severity",
+                slice_value="high",
+            ),
+            AggregateMetric(
+                run_id="r",
+                metric_name="overall_accuracy_ci_high",
+                value=0.9,
+                slice_name="severity",
+                slice_value="high",
+            ),
+            AggregateMetric(
+                run_id="r",
+                metric_name="majority_class_baseline",
+                value=0.5,
+                slice_name="severity",
+                slice_value="high",
+            ),
+        ]
+    )
+    enriched = slice_accuracy(metrics)[0]
+    assert enriched["ci"] == "[10.0%, 90.0%]"
+    assert enriched["majority"] == 0.5
