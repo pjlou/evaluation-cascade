@@ -4,7 +4,7 @@ source: cognitive
 case_ids:
   - en-agr-001a
   - en-agr-001b
-  - fi-case-001a
-  - fi-case-001c
+  - en-agr-nov-001a
+  - en-neg-nov-001a
   - en-neg-001a
 extra_cases: judge_cases.json

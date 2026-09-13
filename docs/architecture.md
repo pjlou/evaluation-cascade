@@ -28,7 +28,7 @@ flowchart LR
         Store --> Dashboard[Streamlit dashboard]
 ```
 
-The primary implementation lives in [`evalcascade/`](../evalcascade/). The vendored [`cognitive-eval/`](../cognitive-eval-v2/) tree is an external domain implementation kept separate from the platform core. Versioned inputs live under [`datasets/`](../datasets/), environment and gate policy under [`configs/`](../configs/), and operational run data under [`eval_runs/`](../eval_runs/).
+The primary implementation lives in [`evalcascade/`](../evalcascade/). The vendored [`cognitive-eval/`](../cognitive-eval/) tree is an external domain implementation kept separate from the platform core. Versioned inputs live under [`datasets/`](../datasets/), environment and gate policy under [`configs/`](../configs/), and operational run data under [`eval_runs/`](../eval_runs/).
 
 ## Main layers
 
@@ -61,7 +61,7 @@ There are two source modes:
 - `inline`: load JSON cases and validate each item as an `EvaluationCase`.
 - `cognitive`: import Cognitive-Eval's dataset loader lazily, then map each vendored `TestItem` into the platform's `EvaluationCase` shape.
 
-`EvaluationCase` is the input-side contract. It carries an id, prompt text, expected values, tags, severity, arbitrary metadata, and dataset version. Cognitive cases preserve domain information such as language, phenomenon, tier, rule node, verification method, and gold structure in `metadata`; this is what allows the generic cascade to invoke the correct domain verifier without knowing the whole Cognitive-Eval schema.
+`EvaluationCase` is the input-side contract. It carries an id, prompt text, expected values, tags, severity, arbitrary metadata, and dataset version. Cognitive cases preserve domain information such as lexical condition, language, phenomenon, tier, rule node, verification method, and gold structure in `metadata`; this is what allows the generic cascade to invoke the correct domain verifier without knowing the whole Cognitive-Eval schema.
 
 Dataset manifests therefore control reproducibility and selection. For example, `cognitive-v1` loads all Cognitive-Eval cases, while `smoke-v1` selects five specific case ids from the same source.
 
@@ -100,7 +100,7 @@ The platform data contracts are defined in [`models.py`](../evalcascade/models.p
 | Evaluator | Scope | Responsibility |
 | --- | --- | --- |
 | `schema` | Per case | Validates JSON/object shape, required fields, allowed values, or extraction parse status. It is `not_applicable` when a case has no schema contract. |
-| `cognitive_rule_verifier` | Per case | For Cognitive-Eval cases, selects the English/Finnish forced-choice verifier from case metadata and audits the corresponding rule graph node. |
+| `cognitive_rule_verifier` | Per case | For Cognitive-Eval cases, selects the natural or novel English forced-choice verifier from case metadata and audits the corresponding rule graph node. |
 | `extraction_fields` | Per case | Compares structured ticket fields to expected values, detects critical-field mismatches and hallucinated fields, and computes field accuracy. |
 | `llm_judge` | Per case | Model-based judgment against a fixed, disclosed rubric, scoped to cases that opt in via a `judge_rubric` and that no earlier deterministic evaluator already resolved. A judgment below the confidence floor is routed to `review` rather than trusted. |
 | `statistical` | Run | Compares candidate and baseline behavior for output length, latency, labels, review rate, error concentration, and optionally embedding clusters. |

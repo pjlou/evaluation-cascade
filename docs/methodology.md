@@ -16,7 +16,7 @@ The system produces **reproducible evidence** that a change to a local LLM appli
 
 ## Workloads
 
-1. **Cognitive-Eval** — English/Finnish forced-choice items grounded in a literature-backed rule graph. Finnish items still need native-speaker review (inherited limitation).
+1. **Cognitive-Eval** — English forced-choice items grounded in a literature-backed rule graph, crossed by natural versus novel vocabulary. Novel items keep function words real and swap open-class words for regular novel-word forms, so a natural-versus-novel accuracy gap is the headline comparison. The suite is still smoke-scale, and novel-word items isolate lexical familiarity only when morphology stays regular.
 2. **Structured extraction** — support-ticket JSON with field-level and critical-field metrics. The portfolio demo shows why one aggregate score is not enough: schema validity can improve while high-severity field accuracy drops, and the gate fails.
 
 ## Negative and mixed results (intentional)
@@ -24,7 +24,7 @@ The system produces **reproducible evidence** that a change to a local LLM appli
 - Forced-choice scoring measures selection, not free production. Cognitive-Eval moved free generation into discovery clustering for that reason.
 - Mock-adapter CI does not prove Ollama integration; live-model jobs are optional.
 - FR-6 embeddings are off by default in CI (`enable_embeddings: false`). Drift detection in production requires the optional `embeddings` extra and a baseline run.
-- Five-item extraction and ~18-item cognitive suites are smoke-scale, not academic benchmarks.
+- Five-item extraction and 24-item cognitive suites (8 natural, 16 novel) are smoke-scale, not academic benchmarks. A large natural-versus-novel accuracy gap is the result the lexical axis is built to surface; it is not, by itself, a claim about cross-linguistic competence. Novel-word items isolate lexical familiarity only when inflection stays regular (`-s`, `-ed`) and closed-class words stay real.
 - Statistical clustering can flag novelty that is harmless (new phrasing) or miss a regression that stays inside an existing blob.
 
 ## Deferred

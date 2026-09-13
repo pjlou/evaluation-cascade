@@ -12,11 +12,11 @@ def _cognitive_case(**kwargs) -> EvaluationCase:
         "id": "en-agr-001a",
         "input": "choose a or b",
         "expected": {"gold_structure": {"correct_choice": "a"}, "rule_node_id": "RULE_EN_AGR_HEAD"},
-        "tags": ["english", "agreement_attraction"],
+        "tags": ["natural", "agreement_attraction"],
         "severity": "medium",
         "metadata": {
             "adapter": "cognitive",
-            "module": "english",
+            "lexical_condition": "natural",
             "phenomenon": "agreement_attraction",
             "language": "en",
             "rule_node_id": "RULE_EN_AGR_HEAD",
@@ -111,9 +111,11 @@ def test_rule_graph_covers_each_rule_node_used_in_dataset():
         )
         assert failed.status == "fail", case.id
         assert failed.category == case.metadata["rule_node_id"]
-    assert "RULE_EN_AGR_HEAD" in seen
-    assert "RULE_FI_C4_MASS" in seen
-    assert "RULE_EN_NEG_SCOPE" in seen
+    assert seen == {
+        "RULE_EN_AGR_HEAD",
+        "RULE_EN_NEG_SCOPE",
+        "RULE_EN_NEG_UNIVERSAL_QUANT",
+    }
 
 
 def test_mock_adapter_defaults_to_gold_choice():

@@ -7,8 +7,8 @@ def test_smoke_dataset_loads_five_cognitive_cases_plus_a_judge_case():
     assert [case.id for case in cases] == [
         "en-agr-001a",
         "en-agr-001b",
-        "fi-case-001a",
-        "fi-case-001c",
+        "en-agr-nov-001a",
+        "en-neg-nov-001a",
         "en-neg-001a",
         "en-comp-judge-001",
     ]
@@ -28,11 +28,11 @@ def test_smoke_dataset_judge_case_carries_a_rubric_and_no_gold_answer():
 
 def test_cognitive_dataset_loads_all_items():
     cases = load_dataset("cognitive-v1")
-    assert len(cases) >= 16
+    assert len(cases) == 24
     phenomena = {case.metadata["phenomenon"] for case in cases}
-    assert "agreement_attraction" in phenomena
-    assert "object_case_alternation" in phenomena
-    assert "negation_scope" in phenomena
+    conditions = {case.metadata["lexical_condition"] for case in cases}
+    assert phenomena == {"agreement_attraction", "negation_scope"}
+    assert conditions == {"natural", "novel"}
 
 
 def test_extraction_dataset_has_high_severity_tickets():

@@ -64,7 +64,7 @@ def test_item_to_case(item: Any, dataset_version: str) -> EvaluationCase:
     difficulty = getattr(item, "difficulty", "medium") or "medium"
     severity = DIFFICULTY_TO_SEVERITY.get(str(difficulty), "medium")
     tags = [
-        str(item.module),
+        str(item.lexical_condition),
         str(item.language),
         str(item.phenomenon),
         str(item.tier),
@@ -84,7 +84,7 @@ def test_item_to_case(item: Any, dataset_version: str) -> EvaluationCase:
         severity=severity,  # type: ignore[arg-type]
         metadata={
             "adapter": "cognitive",
-            "module": item.module,
+            "lexical_condition": item.lexical_condition,
             "tier": item.tier,
             "phenomenon": item.phenomenon,
             "language": item.language,

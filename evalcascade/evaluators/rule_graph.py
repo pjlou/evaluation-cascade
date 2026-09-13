@@ -22,18 +22,14 @@ class RuleGraphEvaluator:
             verify_english_agreement_attraction,
             verify_english_negation_scope,
         )
-        from src.verifiers.finnish_verifiers import (
-            verify_finnish_negation_scope,
-            verify_finnish_object_case,
-        )
 
         self._graph = build_v02_rule_graph()
         self._audit_rule = audit_rule
         self._verifiers = {
-            ("agreement_attraction", "english"): verify_english_agreement_attraction,
-            ("negation_scope", "english"): verify_english_negation_scope,
-            ("object_case_alternation", "finnish"): verify_finnish_object_case,
-            ("negation_scope", "finnish"): verify_finnish_negation_scope,
+            ("agreement_attraction", "natural"): verify_english_agreement_attraction,
+            ("agreement_attraction", "novel"): verify_english_agreement_attraction,
+            ("negation_scope", "natural"): verify_english_negation_scope,
+            ("negation_scope", "novel"): verify_english_negation_scope,
         }
 
     def evaluate(
@@ -64,17 +60,17 @@ class RuleGraphEvaluator:
             )
 
         phenomenon = case.metadata.get("phenomenon")
-        module = case.metadata.get("module")
+        lexical_condition = case.metadata.get("lexical_condition")
         gold = case.metadata.get("gold_structure") or case.expected.get("gold_structure") or {}
         rule_node_id = case.metadata.get("rule_node_id") or case.expected.get("rule_node_id")
-        verifier = self._verifiers.get((phenomenon, module))
+        verifier = self._verifiers.get((phenomenon, lexical_condition))
         if verifier is None:
             return EvaluationResult(
                 status="error",
                 score=0.0,
                 category="FAIL_UNKNOWN_PHENOMENON",
                 severity=case.severity,
-                evidence={"phenomenon": phenomenon, "module": module},
+                evidence={"phenomenon": phenomenon, "lexical_condition": lexical_condition},
                 evaluator_name=self.name,
                 evaluator_version=self.version,
                 latency_seconds=time.perf_counter() - started,

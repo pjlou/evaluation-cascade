@@ -14,7 +14,7 @@ def test_cascade_fail_is_not_overridden_by_review():
         severity="high",
         metadata={
             "adapter": "cognitive",
-            "module": "english",
+            "lexical_condition": "natural",
             "phenomenon": "agreement_attraction",
             "rule_node_id": "RULE_EN_AGR_HEAD",
             "gold_structure": {"correct_choice": "a"},
@@ -35,7 +35,7 @@ def test_schema_na_then_rule_pass():
         expected={"gold_structure": {"correct_choice": "a"}},
         metadata={
             "adapter": "cognitive",
-            "module": "english",
+            "lexical_condition": "natural",
             "phenomenon": "agreement_attraction",
             "rule_node_id": "RULE_EN_AGR_HEAD",
             "gold_structure": {"correct_choice": "a"},

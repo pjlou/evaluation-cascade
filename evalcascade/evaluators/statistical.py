@@ -296,7 +296,7 @@ def compare_clusters(
 def _as_cluster_records(results: list[CaseResult]) -> list[dict[str, Any]]:
     records = []
     for item in results:
-        family = next((tag for tag in item.tags if tag not in {"high-risk", "en", "fi", "english", "finnish"}), "unknown")
+        family = next((tag for tag in item.tags if tag not in {"high-risk", "en", "natural", "novel"}), "unknown")
         records.append(
             {
                 "model": item.run_id,

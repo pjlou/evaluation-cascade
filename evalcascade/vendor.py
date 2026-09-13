@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 
-VENDOR_ROOT = Path(__file__).resolve().parent.parent / "cognitive-eval" / "cognitive-eval-main"
+VENDOR_ROOT = Path(__file__).resolve().parent.parent / "cognitive-eval"
 
 
 def ensure_cognitive_eval_on_path() -> Path:
