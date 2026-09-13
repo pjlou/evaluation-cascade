@@ -19,3 +19,4 @@ eval_runs/
 .streamlit/
 .DS_Store
 Thumbs.db
+cognitive-eval/

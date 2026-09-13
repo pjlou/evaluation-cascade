@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from evalcascade.config import RunConfig
 from evalcascade.evaluators.extraction import ExtractionFieldEvaluator
+from evalcascade.evaluators.llm_judge import LlmJudgeEvaluator
 from evalcascade.evaluators.review import ReviewEvaluator
 from evalcascade.evaluators.rule_graph import RuleGraphEvaluator
 from evalcascade.evaluators.schema import SchemaEvaluator
@@ -49,6 +50,7 @@ def build_cascade(config: RunConfig) -> Cascade:
         "schema": SchemaEvaluator,
         "rule_graph": RuleGraphEvaluator,
         "extraction_fields": ExtractionFieldEvaluator,
+        "llm_judge": LlmJudgeEvaluator,
         "review": ReviewEvaluator,
     }
     evaluators = []

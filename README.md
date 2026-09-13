@@ -57,7 +57,7 @@ pytest
 ## Layout
 
 - `evalcascade/` — platform core (adapters, cascade, store, gates, CLI)
-- `cognitive-eval-v2/` — vendored Cognitive-Eval snapshot (rule graph, verifiers, clustering)
+- `cognitive-eval/` — vendored Cognitive-Eval snapshot (rule graph, verifiers, clustering)
 - `datasets/` — versioned evaluation cases
 - `configs/` — CI, local, and extraction gate files
 - `dashboard/` — Streamlit investigation UI

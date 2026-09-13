@@ -2,7 +2,7 @@ from evalcascade.datasets import load_dataset
 from evalcascade.models import EvaluationCase
 
 
-def test_smoke_dataset_loads_five_cognitive_cases():
+def test_smoke_dataset_loads_five_cognitive_cases_plus_a_judge_case():
     cases = load_dataset("smoke-v1")
     assert [case.id for case in cases] == [
         "en-agr-001a",
@@ -10,9 +10,20 @@ def test_smoke_dataset_loads_five_cognitive_cases():
         "fi-case-001a",
         "fi-case-001c",
         "en-neg-001a",
+        "en-comp-judge-001",
     ]
-    assert all(case.metadata["adapter"] == "cognitive" for case in cases)
+    cognitive_cases = [case for case in cases if case.id != "en-comp-judge-001"]
+    assert all(case.metadata["adapter"] == "cognitive" for case in cognitive_cases)
     assert all(isinstance(case, EvaluationCase) for case in cases)
+
+
+def test_smoke_dataset_judge_case_carries_a_rubric_and_no_gold_answer():
+    cases = load_dataset("smoke-v1")
+    judge_case = next(case for case in cases if case.id == "en-comp-judge-001")
+    assert judge_case.metadata.get("adapter") != "cognitive"
+    assert judge_case.expected.get("correct_choice") is None
+    assert "judge_rubric" in judge_case.metadata
+    assert judge_case.metadata["judge_rubric"].strip()
 
 
 def test_cognitive_dataset_loads_all_items():

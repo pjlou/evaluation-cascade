@@ -7,3 +7,4 @@ case_ids:
   - fi-case-001a
   - fi-case-001c
   - en-neg-001a
+extra_cases: judge_cases.json

@@ -1,3 +1,5 @@
+import pytest
+
 from evalcascade.adapters.mock import MockAdapter
 from evalcascade.cli import main
 from evalcascade.config import load_config
@@ -25,7 +27,9 @@ def test_planted_regression_fails_gates(tmp_path):
     cases = load_dataset("smoke-v1")
     wrong = {}
     for case in cases:
-        gold = case.expected["correct_choice"]
+        gold = case.expected.get("correct_choice")
+        if gold is None:
+            continue
         wrong[case.id] = "a" if gold != "a" else "b"
     config = load_config(
         "configs/ci.yaml",
@@ -35,7 +39,10 @@ def test_planted_regression_fails_gates(tmp_path):
         adapter="mock",
     )
     report = run_evaluation(config, adapter=MockAdapter(responses=wrong))
-    assert report["metrics"]["overall_accuracy"] == 0.0
+    # en-comp-judge-001 has no forced-choice gold answer and no llm_judge in
+    # configs/ci.yaml's evaluators, so it trivially passes alongside the 5
+    # deliberately-wrong forced-choice cases.
+    assert report["metrics"]["overall_accuracy"] == pytest.approx(1 / 6)
     assert report["overall_status"] == "fail"
     assert report["metrics"]["high_severity_failure_rate"] == 1.0
 
@@ -60,7 +67,11 @@ def test_cli_smoke_exit_zero(tmp_path):
 def test_cli_regression_exit_one(tmp_path):
     cases = load_dataset("smoke-v1")
     # CLI uses MockAdapter() gold answers, so force a failing dataset via engine instead.
-    wrong = {case.id: ("a" if case.expected["correct_choice"] != "a" else "b") for case in cases}
+    wrong = {
+        case.id: ("a" if case.expected["correct_choice"] != "a" else "b")
+        for case in cases
+        if case.expected.get("correct_choice") is not None
+    }
     config = load_config(
         "configs/ci.yaml",
         store_path=tmp_path / "eval.sqlite",
@@ -75,7 +86,7 @@ def test_baseline_comparison_detects_new_failures(tmp_path):
     store = tmp_path / "eval.sqlite"
     baseline_cfg = load_config("configs/ci.yaml", store_path=store, fail_on_gate=False, adapter="mock")
     baseline = run_evaluation(baseline_cfg)
-    cases = load_dataset("smoke-v1")
+    cases = [case for case in load_dataset("smoke-v1") if case.expected.get("correct_choice") is not None]
     mixed = {}
     for index, case in enumerate(cases):
         gold = case.expected["correct_choice"]

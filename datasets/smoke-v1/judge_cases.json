@@ -1,0 +1,12 @@
+[
+  {
+    "id": "en-comp-judge-001",
+    "input": "Sentence: 'Every student didn't finish the exam.' Explain whether this most naturally supports a wide-scope negation reading (not > every: no student finished) or a narrow-scope reading (every > not: some students didn't finish), and justify your answer.",
+    "expected": {},
+    "tags": ["english", "compositional_logic", "llm-judge"],
+    "severity": "medium",
+    "metadata": {
+      "judge_rubric": "Score 1.0 if the response correctly identifies the narrow-scope reading (every > not: some students didn't finish) as the most natural interpretation and gives a coherent justification. Score 0.0 if it claims the wide-scope reading is more natural or gives no coherent justification. Confidence should reflect how unambiguous the explanation is."
+    }
+  }
+]

@@ -22,7 +22,11 @@ def load_dataset(name: str) -> list[EvaluationCase]:
         version = str(manifest.get("version", name))
         if source == "cognitive":
             case_ids = manifest.get("case_ids", "all")
-            return load_cognitive_cases(version=version, case_ids=case_ids)
+            cases = load_cognitive_cases(version=version, case_ids=case_ids)
+            extra = manifest.get("extra_cases")
+            if extra:
+                cases.extend(_load_case_file(DATASETS_DIR / name / extra, version))
+            return cases
         if source == "inline":
             inline_path = DATASETS_DIR / name / manifest.get("cases", "cases.json")
             return _load_case_file(inline_path, version)
